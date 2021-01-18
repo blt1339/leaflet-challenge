@@ -192,14 +192,13 @@ function createMap(earthquakeSites,plates) {
         function plateStyle(feature) {
           return {
             weight: 3,
-            color: "orange"
+            color: "red"
           };
         }
       
         L.geoJSON(response, {
           style: plateStyle
         }).addTo(platesLayer);
-        // faults.addTo(map)
       })
 
       
