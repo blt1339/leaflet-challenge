@@ -87,11 +87,21 @@ function createMap(earthquakeSites,plates) {
     return div;
     };
     legend.addTo(map);
-  
-  
-  
-  
-  
+
+    // Add an event listener that adds/removes the legends if the earthquakes layer is added/removed.
+
+    map.on('overlayremove', function (eventLayer) {
+      if (eventLayer.name === 'Earthquake Sites') {
+        this.removeControl(legend);
+      }
+    });
+
+    map.on('overlayadd', function (eventLayer) {
+      // Turn on the legend...
+      if (eventLayer.name === 'Earthquake Sites') {
+        legend.addTo(this);
+      }
+    });  
   }
   
   function createMarkers(response) {
