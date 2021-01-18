@@ -1,5 +1,5 @@
-function createMap(earthquakeSites) {
-  console.log(earthquakeSites);
+function createMap(earthquakeSites,plates) {
+
     // Create the tile layer that will be the background of our map
     var lightMap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
       attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -52,14 +52,15 @@ function createMap(earthquakeSites) {
   
     // Create an overlayMaps object to hold the earthquakeSite layer
     var overlayMaps = {
-      "Earthquake Sites": earthquakeSites
+      "Earthquake Sites": earthquakeSites,
+      "Tectonic Plates": plates
     };
   
     // Create the map object with options
     var map = L.map("map", {
       center: [31.51, -95.42],
       zoom: 4,
-      layers: [lightMap,earthquakeSites]
+      layers: [lightMap,earthquakeSites,plates]
     });
   
     // Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
@@ -76,32 +77,31 @@ function createMap(earthquakeSites) {
     categoriesLabels = ["-10-10","10-30","30-50","50-70","70-90","90+"];
     
     for (var i = 0; i < categories.length; i++) {
-        console.log(defineColor(categories[i]))
         div.innerHTML += 
         labels.push(
             '<i class="legend" style="background-color:' + defineColor(categories[i]) + ';"></i> ' +
         (categoriesLabels[i] ? categoriesLabels[i] : '+'));
     
         }
-        console.log(labels)
         div.innerHTML = labels.join('<br>');
     return div;
     };
     legend.addTo(map);
-
-
-
+  
+  
+  
+  
+  
   }
   
   function createMarkers(response) {
-    // console.log(response.features[0].geometry.coordinates);
     // Pull the "stations" property off of response.data
     let features = response.features;
 
     // Initialize an array to hold bike markers
     var earthquakeMarkers = [];
 
-    // Loop through the stations array
+    // Loop through the features
     for (var index = 0; index < features.length; index++) {
       let longitude = features[index].geometry.coordinates[1];
       let latitude = features[index].geometry.coordinates[0];
@@ -122,9 +122,9 @@ function createMap(earthquakeSites) {
       // Add the marker to the bikeMarkers array
       earthquakeMarkers.push(earthquakeMarker);
     }
-    console.log(earthquakeMarkers);
     // // Create a layer group made from the earthquakeMarkers array, pass it into the createMap function
-    createMap(L.layerGroup(earthquakeMarkers));
+    // createMap(L.layerGroup(earthquakeMarkers));
+      return earthquakeMarkers;
   }
   
   function defineColor(mag){
@@ -146,5 +146,53 @@ function createMap(earthquakeSites) {
   }
   
   // Perform an API call to the Earthquake data and  create a map.
-  d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson", createMarkers);
-  
+  d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson", function(earthquakeResponse) {
+
+    // Create the earthquake layer
+    let earthquakeMarkers = createMarkers(earthquakeResponse);
+    let earthquakeLayer = L.layerGroup(earthquakeMarkers)
+    // d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json", function(platesResponse) {
+      // Create a layer group made from the earthquakeMarkers array, pass it into the createMap function
+      // var platesCoordinates = [];
+
+
+      // // Loop through the features
+      // for (let index = 0; index < platesResponse.features.length; index++) {
+      //   for (let coordinatesIndex = 0; coordinatesIndex < platesResponse.features[index].geometry.coordinates.length; coordinatesIndex++ ) {
+      //     let singleCoordinate = platesResponse.features[index].geometry.coordinates[coordinatesIndex];
+      //     platesCoordinates.push(singleCoordinate);
+    
+      //   }      
+      // }
+      // console.log(platesCoordinates);
+      // let plates = new L.Polyline([platesCoordinates], {
+      //   color: "yellow",
+      //   fillColor: "yellow",
+      //   fillOpacity: 0.75
+      // });
+      // console.log(plates);
+
+      let platesLayer = new L.layerGroup();
+
+
+      // Get the tectonic plate information
+      d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json", function(response) {
+        
+        // Set the tectonic plates stype
+        function plateStyle(feature) {
+          return {
+            weight: 3,
+            color: "orange"
+          };
+        }
+      
+        L.geoJSON(response, {
+          style: plateStyle
+        }).addTo(platesLayer);
+        // faults.addTo(map)
+      })
+
+      
+      createMap(earthquakeLayer,platesLayer);
+    // });
+  });
