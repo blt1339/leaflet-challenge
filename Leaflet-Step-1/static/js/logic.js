@@ -85,8 +85,8 @@ function createMap(earthquakeSites) {
     for (var index = 0; index < features.length; index++) {
 
       // Extract all of the data we will need about the earthquake
-      let longitude = features[index].geometry.coordinates[1];
-      let latitude = features[index].geometry.coordinates[0];
+      let longitude = features[index].geometry.coordinates[0];
+      let latitude = features[index].geometry.coordinates[1];
       let depth = features[index].geometry.coordinates[2];
       let place = features[index].properties.place;
       let mag = features[index].properties.mag;
@@ -97,7 +97,7 @@ function createMap(earthquakeSites) {
 
       // For each earthquake, create a marker and bind a popup with the 
       // place, time, magnitude and depth
-      var earthquakeMarker = L.circleMarker([longitude, latitude],{ 
+      var earthquakeMarker = L.circleMarker([latitude, longitude],{ 
         radius: mag * 4,
         color: depthCircleColor,
         fillColor: depthCircleColor,

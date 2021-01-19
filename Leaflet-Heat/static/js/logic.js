@@ -113,14 +113,13 @@ function createMap(earthquakeSites,plates) {
     });  
   }
 
-  // Create the earthquake circles with the size of the circle 
-  // dictated by the magnitude and color dictated by the depth
-  function createMarkers(response) {
+  // Create the earthquake array of latitude and longitudes
+  function createLatLon(response) {
     // Pull the features data 
     let features = response.features;
 
     // Initialize an array to hold the earthquake markers
-    let earthquakeMarkers = [];
+    var earthquakeLatLon = [];
 
     // Loop through the features
     for (var index = 0; index < features.length; index++) {
@@ -128,55 +127,24 @@ function createMap(earthquakeSites,plates) {
       // Extract all of the data we will need about the earthquake
       let longitude = features[index].geometry.coordinates[0];
       let latitude = features[index].geometry.coordinates[1];
-      let depth = features[index].geometry.coordinates[2];
-      let place = features[index].properties.place;
-      let mag = features[index].properties.mag;
-      let time = features[index].properties.time;
 
-      // Define the color dictated by the depth
-      let depthCircleColor = defineColor(depth)
-
-      // For each earthquake, create a marker and bind a popup with the 
-      // place, time, magnitude and depth
-      var earthquakeMarker = L.circleMarker([latitude,longitude],{ 
-        radius: mag * 4,
-        color: depthCircleColor,
-        fillColor: depthCircleColor,
-        fillOpacity: 0.75})
-        .bindPopup("<h3>" + place + "<h3><h3>Time: " + new Date(time) + "<h3><h3>Magnitude: " + mag + "<h3><h3>Depth: " + depth + "</h3>");
-  
-      // Add the marker to the earthquakeMarkers array
-      earthquakeMarkers.push(earthquakeMarker);
+      earthquakeLatLon.push([latitude,longitude]);
     }
-      // Return the earthquakeMarkers
-      return earthquakeMarkers;
-  }
-  
-  // Function to define the color
-  function defineColor(earthquakeDepth){
-    let circleColor;
-    if (earthquakeDepth < 10){
-      circleColor = "#A3F600";
-    } else if (earthquakeDepth < 30) {
-      circleColor = "#DCF400";
-    } else if (earthquakeDepth < 50) {
-      circleColor = "#F7DB11";
-    } else if (earthquakeDepth < 70) {
-      circleColor = "#FDB72A";
-    } else if (earthquakeDepth < 90) {
-      circleColor = "#FCA35D";
-    } else {
-      circleColor = "#FF5F65";
-    }
-    return circleColor;
+      // Return the earthquakeLatLon
+      return earthquakeLatLon;
   }
   
   // Perform an API call to the Earthquake data and  create a map.
   d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson", function(earthquakeResponse) {
 
     // Create the earthquake layer
-    let earthquakeMarkers = createMarkers(earthquakeResponse);
-    let earthquakeLayer = L.layerGroup(earthquakeMarkers)
+    let earthquakeLatLon = createLatLon(earthquakeResponse);
+
+    let earthquakeLayer = L.heatLayer(earthquakeLatLon, {
+      radius:20,
+      blur:35,
+      max: 0.0001,
+    })
 
     // Create the tectonic plates layher
     let platesLayer = new L.layerGroup();
