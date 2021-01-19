@@ -1,7 +1,6 @@
 
 // Function to create the earthquake map
 function createMap(earthquakeSites) {
-  console.log(earthquakeSites);
 
     // Create the tile layer that will be the background of our map
     var lightMap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
@@ -76,11 +75,10 @@ function createMap(earthquakeSites) {
   // Create the earthquake circles with the size of the circle 
   // dictated by the magnitude and color dictated by the depth
   function createMarkers(response) {
-    // console.log(response.features[0].geometry.coordinates);
-    // Pull the "stations" property off of response.data
+    // Pull the features data 
     let features = response.features;
 
-    // Initialize an array to hold bike markers
+    // Initialize an array to hold the earthquake markers
     var earthquakeMarkers = [];
 
     // Loop through the stations array
