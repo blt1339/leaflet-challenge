@@ -136,17 +136,17 @@ function createMap(earthquakeSites,plates) {
       return earthquakeMarkers;
   }
   
-  function defineColor(mag){
+  function defineColor(earthquakeDepth){
     let circleColor;
-    if (mag < 10){
+    if (earthquakeDepth < 10){
       circleColor = "#A3F600";
-    } else if (mag < 30) {
+    } else if (earthquakeDepth < 30) {
       circleColor = "#DCF400";
-    } else if (mag < 50) {
+    } else if (earthquakeDepth < 50) {
       circleColor = "#F7DB11";
-    } else if (mag < 70) {
+    } else if (earthquakeDepth < 70) {
       circleColor = "#FDB72A";
-    } else if (mag < 90) {
+    } else if (earthquakeDepth < 90) {
       circleColor = "#FCA35D";
     } else {
       circleColor = "#FF5F65";
